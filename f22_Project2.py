@@ -25,7 +25,37 @@ def get_listings_from_search_results(html_file):
         ('Loft in Mission District', 210, '1944564'),  # example
     ]
     """
-    pass
+
+    empty = []
+    with open(html_file, "r") as f:
+        contents = f.read()
+        soup = BeautifulSoup(contents, "html.parser")
+        titles = soup.find("title") #does this need to be find or find_all
+        cost = soup.find('span', class_="_tyxjp1")
+        id_num = soup.find_all('link', rel="canonical")
+        for ids in id_num:
+            regex = r'[\d].+[\d]$'
+            print(ids.get('href', None ))
+            end_id = ids.get('href', None)
+            x = re.findall(regex, end_id)
+            if x: 
+                x = x
+                
+        #print(titles.text)
+        #print(int(cost.text[1:]))
+
+    for element in x:
+        element1 = str(element)
+
+    title1 = titles.text
+    cost1 = int(cost.text[1:])
+        
+    emptylist = [(title1, cost1, element1)]
+        #print(emptylist)
+    return(emptylist)
+
+
+
 
 
 def get_listing_information(listing_id):
@@ -236,6 +266,7 @@ class TestCases(unittest.TestCase):
 
         # check that the first element in the list is '16204265'
         pass
+
 
 
 if __name__ == '__main__':
