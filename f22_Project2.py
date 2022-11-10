@@ -45,12 +45,12 @@ def get_listings_from_search_results(html_file):
         #print(int(cost.text[1:]))
 
     for element in x:
-        element1 = str(element)
+        final_id = str(element)
 
     title1 = titles.text
     cost1 = int(cost.text[1:])
         
-    emptylist = [(title1, cost1, element1)]
+    emptylist = [(title1, cost1, final_id)]
         #print(emptylist)
     return(emptylist)
 
