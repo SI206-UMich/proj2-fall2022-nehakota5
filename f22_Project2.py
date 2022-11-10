@@ -25,34 +25,35 @@ def get_listings_from_search_results(html_file):
         ('Loft in Mission District', 210, '1944564'),  # example
     ]
     """
-
-    empty = []
     with open(html_file, "r") as f:
         contents = f.read()
         soup = BeautifulSoup(contents, "html.parser")
-        titles = soup.find("title") #does this need to be find or find_all
-        cost = soup.find('span', class_="_tyxjp1")
-        id_num = soup.find_all('link', rel="canonical")
-        for ids in id_num:
-            regex = r'[\d].+[\d]$'
-            print(ids.get('href', None ))
-            end_id = ids.get('href', None)
-            x = re.findall(regex, end_id)
-            if x: 
-                x = x
-                
-        #print(titles.text)
-        #print(int(cost.text[1:]))
 
-    for element in x:
-        final_id = str(element)
+        title_list = []
+        titles = soup.find_all('div', class_='t1jojoys dir dir-ltr')
+        for t in titles: 
+            title_list.append(t.text)
+        #print(title_list)
 
-    title1 = titles.text
-    cost1 = int(cost.text[1:])
+        cost_list = []
+        costs = soup.find_all('span', class_="_tyxjp1")
+        for mon in costs:
+            #print(mon.text)
+            mon = mon.text.strip("$")
+            mon = int(mon)
+            cost_list.append(mon)
         
-    emptylist = [(title1, cost1, final_id)]
-        #print(emptylist)
-    return(emptylist)
+        id_list = []
+        ids = soup.find_all('div', class_='t1jojoys dir dir-ltr')
+        for id in ids: 
+            id = id.get("id")
+            id_list.append(id[6:])
+        #print(id_list)
+
+        merged_list = list(zip(title_list, cost_list, id_list))
+        #print(merged_list)
+
+        return merged_list
 
 
 
@@ -82,7 +83,54 @@ def get_listing_information(listing_id):
         number of bedrooms
     )
     """
-    pass
+    f = open('html_files/listing_'+(listing_id)+'.html', 'r')
+    soup = BeautifulSoup(f, "html.parser")
+    f.close()
+
+    policy_num = soup.find('li', class_="f19phm7j dir dir-ltr")
+    split1 = policy_num.text.split(":")
+    
+    split2 = []
+    for item in split1:
+        item = item.lstrip()
+        split2.append(item)
+    #print(split2)
+
+    policynumber = split2[1]
+
+    #print(policynumber)
+
+    if policynumber == "Pending Application":
+        policynumber = "Pending"
+
+     #FINAL POLICY NUMBER VARIABLE = policynumber
+
+    housetype = soup.find_all('div', class_="_cv5qq4")
+    for type in housetype:
+        type1 = type.text.split()
+        
+        if "Entire" in type1:
+            finaltype = "Entire Room"
+        if "Shared" in type1:
+            finaltype = "Shared Room"
+        if "Private" in type1:
+            finaltype = "Private Room"
+
+    for tag in soup.find(attrs={"class" : "lgx66tx dir dir-ltr"}).find_all("span")[5]:
+        taglist = tag.split()
+        bed_nums = int(taglist[0])
+        #print(bed_nums)
+        if "Studio" or "studio" in taglist:
+            bed_nums = 1
+
+    #bed_nums = FINAL VARIABLE FOR NUMBER OF BEDS
+
+    finaltuple = (policynumber, finaltype, bed_nums)
+    return finaltuple
+
+        
+
+    # finaltype = FINAL VARIABLE FOR TYPE OF HOUSE
 
 
 def get_detailed_listing_database(html_file):
@@ -99,7 +147,24 @@ def get_detailed_listing_database(html_file):
         ...
     ]
     """
-    pass
+
+    totallist = []
+
+    file = get_listings_from_search_results(html_file)
+    for lst in file:
+        listing_info = get_listing_information(lst[2])
+    print(listing_info)
+    
+
+
+    
+
+
+    
+
+
+
+
 
 
 def write_csv(data, filename):
@@ -124,7 +189,10 @@ def write_csv(data, filename):
 
     This function should not return anything.
     """
-    pass
+    
+
+
+
 
 
 def check_policy_numbers(data):
